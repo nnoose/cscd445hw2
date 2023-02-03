@@ -1,4 +1,4 @@
-
+#include "pgmProcess.h"
 
 /**
  *  Function Name:
@@ -11,6 +11,6 @@
  */
 __device__ float distance( int p1[], int p2[] )
 {
-	float sqr = (float)(p1[0]-p2[0])(p1[0]-p2[0]) + (p1[1] - p2[1])(p1[1]-p2[1]);
+	float sqr = (float) (p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1]);
 	return sqrtf(sqr);
 }

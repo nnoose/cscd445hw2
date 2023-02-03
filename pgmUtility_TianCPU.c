@@ -74,7 +74,7 @@ int pgmDrawLine( int **pixels, int numRows, int numCols, char **header,
 }
 
 //----------------------------------------------------------------------------
-int pgmWrite( const char **header, const int **pixels, int numRows, int numCols, FILE *out )
+int pgmWrite( const char **header, const int *pixels, int numRows, int numCols, FILE *out )
 {
     int i, j;
     
@@ -90,9 +90,9 @@ int pgmWrite( const char **header, const int **pixels, int numRows, int numCols,
         for ( j = 0; j < numCols; j ++ )
         {
             if ( j < numCols - 1 )
-                fprintf(out, "%d ", pixels[i][j]);
+                fprintf(out, "%d ", pixels[i*numCols + j]);
             else
-                fprintf(out, "%d\n", pixels[i][j]);
+                fprintf(out, "%d\n", pixels[i*numCols+j]);
         }
     }
     return 0;

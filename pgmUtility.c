@@ -14,7 +14,6 @@
 int * pgmRead( char **header, int *numRows, int *numCols, FILE *in )
 {
     int i, j;
-
     // read in header of the image first
     for( i = 0; i < rowsInHeader; i ++)
     {
@@ -32,21 +31,36 @@ int * pgmRead( char **header, int *numRows, int *numCols, FILE *in )
 
     // Now we can intialize the pixel of 2D array, allocating memory
     int *pixels = ( int * ) malloc( ( *numRows ) * ( *numCols ) * sizeof( int ) );
-    for( i = 0; i < *numRows; i ++)
-    {
-        pixels[i] = ( int * ) malloc( ( *numCols ) * sizeof( int ) );
-        if ( pixels[i] == NULL )
-        {
-            return NULL;
-        }
-    }
 
     // read in all pixels into the pixels array.
     for( i = 0; i < *numRows; i ++ )
         for( j = 0; j < *numCols; j ++ )
-            if ( fscanf(in, "%d ", &pixels[i*numCols+j]) < 0 )
+            if ( fscanf(in, "%d ", &pixels[i*(*numCols)+j]) < 0 )
                 return NULL;
 
     return pixels;
+}
 
+int pgmWrite( const char **header, const int *pixels, int numRows, int numCols, FILE *out )
+{
+    int i, j;
+
+    // write the header
+    for ( i = 0; i < rowsInHeader; i ++ )
+    {
+        fprintf(out, "%s", *( header + i ) );
+    }
+
+    // write the pixels
+    for( i = 0; i < numRows; i ++ )
+    {
+        for ( j = 0; j < numCols; j ++ )
+        {
+            if ( j < numCols - 1 )
+                fprintf(out, "%d ", pixels[i*numCols + j]);
+            else
+                fprintf(out, "%d\n", pixels[i*numCols+j]);
+        }
+    }
+    return 0;
 }

@@ -6,6 +6,6 @@ main.o: main.c
 pgmProcess.o: pgmProcess.cu
 	nvcc pgmProcess.cu -c -I.
 pgmUtility.o: pgmUtility.c pgmUtility.h
-	gcc pgmUtility.c pgmUtility.h -c -I.
+	gcc pgmUtility.c -c -I.
 clean:
-	rm *.o
+	rm *.o hw2

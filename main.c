@@ -18,7 +18,6 @@ int main(int argc, char ** argv)
 	int * pixels = pgmRead((char **)header, &nRows,&nCols, fin);
 
 
-
 	pgmWrite((const char **)header, pixels, nRows, nCols, fout);
 
 

@@ -43,3 +43,7 @@ __global__ void drawEdge(int* pixels, int dimx, int dimy, int edgeWidth)
 			arr[y*xmax + x] = 0;
 	}
 }
+
+__global__ void pgmDrawLineKernel(int *pixels, int index) {
+    pixels[index] = 0;
+}

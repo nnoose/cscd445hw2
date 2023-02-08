@@ -15,7 +15,24 @@ __device__ float distance( int p1[], int p2[] )
 	return sqrtf(sqr);
 }
 
-__global__ void makeEdge(int * arr, int xmax, int ymax, int size)
+__global__ void drawCircle(int* pixels, int dimx, int dimy, int centerCol, int centerRow, int radius)
+{
+	int ix   = blockIdx.x*blockDim.x + threadIdx.x;
+    	int iy   = blockIdx.y*blockDim.y + threadIdx.y;
+    	int idx = iy*dimx + ix;
+    	
+    	int center[2] = {centerCol, centerRow};
+    	int pixel[2] = {ix,iy};
+    	
+    	float distance = distance(center, pixel);
+    	
+    	if(distance <= radius && ix < dimx)
+    	{
+    		pixels[idx] = 0;
+    	}
+    	
+}
+__global__ void drawEdge(int* pixels, int dimx, int dimy, int edgeWidth)
 {
         int x = threadIdx.x+(blockIdx.x*blockDim.x);
         int y = threadIdx.y+(blockIdx.y*blockDim.y);

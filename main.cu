@@ -23,7 +23,7 @@ int main(int argc, char ** argv)
 	int * pixels = pgmRead((char **)header, &nRows,&nCols, fin);
 
 
-	pgmDrawEdge(pixels, nRows, nCols, 50, header);
+	//pgmDrawEdge(pixels, nRows, nCols, 50, header);
 
 	pgmWrite((const char **)header, pixels, nRows, nCols, fout);
 

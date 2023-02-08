@@ -13,7 +13,7 @@
 #define rowsInHeader 4      // number of rows in image header
 #define maxSizeHeadRow 200  // maximal number characters in one row in the header
 
-
+#define blockSize 32
 
 /**
  *  Function Name: 

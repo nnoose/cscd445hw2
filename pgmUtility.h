@@ -14,7 +14,7 @@
 #define maxSizeHeadRow 200  // maximal number characters in one row in the header
 #define blockSize 512
 
-
+#define blockSize 32
 
 /**
  *  Function Name: 

@@ -33,3 +33,13 @@ __global__ void drawCircle(int* pixels, int dimx, int dimy, int centerCol, int c
     	
 }
 __global__ void drawEdge(int* pixels, int dimx, int dimy, int edgeWidth)
+{
+        int x = threadIdx.x+(blockIdx.x*blockDim.x);
+        int y = threadIdx.y+(blockIdx.y*blockDim.y);
+
+	if(x<xmax && y < ymax)
+	{
+		if(x<size||y<size||(ymax-y)<=size||(xmax-x)<=size)
+			arr[y*xmax + x] = 0;
+	}
+}

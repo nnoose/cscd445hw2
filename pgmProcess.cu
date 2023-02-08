@@ -14,3 +14,15 @@ __device__ float distance( int p1[], int p2[] )
 	float sqr = (float) (p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1]);
 	return sqrtf(sqr);
 }
+
+__global__ void makeEdge(int * arr, int xmax, int ymax, int size)
+{
+        int x = threadIdx.x+(blockIdx.x*blockDim.x);
+        int y = threadIdx.y+(blockIdx.y*blockDim.y);
+
+	if(x<xmax && y < ymax)
+	{
+		if(x<size||y<size||(ymax-y)<=size||(xmax-x)<=size)
+			arr[y*xmax + x] = 0;
+	}
+}

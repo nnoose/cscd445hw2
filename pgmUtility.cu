@@ -91,4 +91,44 @@ int pgmDrawEdge( int *pixels, int numRows, int numCols, int edgeWidth, char **he
 	return 0;
 }
 
+int pgmDrawLine( int *pixels, int numRows, int numCols, char **header, int p1row, int p1col, int p2row, int p2col ) {
+    int *d_pixels = 0, numBytes = numRows * numCols * sizeof(int);
+    cudaMalloc((void **) &d_pixels, numBytes);
+    if (d_pixels == 0) {
+        printf("Couldn't allocate memory\n");
+        return -1;
+    }
+    cudaMemcpy(d_pixels, pixels, numBytes, cudaMemcpyHostToDevice);
+    dim3 grid, block;
+    block.x = numCols;
+    block.y = numRows;
+    grid.x = ceil((float) numRows / block.x);
+    grid.y = ceil((float) numCols / block.y);
 
+    int dx = p2row - p1row, dy = p2col - p1col, steps;
+    double x = (double) p1row, y = (double) p1col;
+    if (abs(dx) > abs(dy)) steps = abs(dx) + 1;
+    else steps = abs(dy) + 1;
+    float xInc = (float) (abs(dx) + 1) / (float) steps;
+    float yInc = (float) (abs(dy) + 1) / (float) steps;
+    if (dx < 0) xInc *= -1;
+    if (dy < 0) yInc *= -1;
+    for (int i = 0; i < steps; i++) {
+        int xHalf = 0, yHalf = 0;
+        if (fmod(x, 1.0) == .5) {
+            x -= .5;
+            xHalf = 1;
+        }
+        if (fmod(y, 1.0) == .5) {
+            y -= .5;
+            yHalf = 1;
+        }
+        pgmDrawLineKernel<<<grid, block>>>(d_pixels, (int) (round(x) * numCols + round(y)));
+        if (xHalf) x += .5;
+        if (yHalf) y += .5;
+        x += xInc;
+        y += yInc;
+    }
+    cudaMemcpy(pixels, d_pixels, numBytes, cudaMemcpyDeviceToHost);
+    return 0;
+}

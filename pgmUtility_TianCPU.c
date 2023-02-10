@@ -56,7 +56,24 @@ int ** pgmRead( char **header, int *numRows, int *numCols, FILE *in )
 int pgmDrawCircle( int **pixels, int numRows, int numCols, int centerRow,
                   int centerCol, int radius, char **header )
 {
-
+	int x,y,max;
+	for(x = 0; x < numRows; x++)
+	{
+		for(y = 0; y < numCols; y++)
+		{
+			int* pixel = {y,x};
+			int* center = {centerCol, centerRow};
+			int dist = (int) distance( center, pixel);
+			int place = (x*numRows)+y;
+			if(dist < radius){
+				pixels[place] = 0;
+			}
+			if(pixels[place] > max;){
+				max = pixels[place];
+			}
+		}
+	}
+	
 }
 
 //---------------------------------------------------------------------------
@@ -74,7 +91,7 @@ int pgmDrawLine( int **pixels, int numRows, int numCols, char **header,
 }
 
 //----------------------------------------------------------------------------
-int pgmWrite( const char **header, const int *pixels, int numRows, int numCols, FILE *out )
+int pgmWrite( const char **header, const int **pixels, int numRows, int numCols, FILE *out )
 {
     int i, j;
     
@@ -90,9 +107,9 @@ int pgmWrite( const char **header, const int *pixels, int numRows, int numCols, 
         for ( j = 0; j < numCols; j ++ )
         {
             if ( j < numCols - 1 )
-                fprintf(out, "%d ", pixels[i*numCols + j]);
+                fprintf(out, "%d ", pixels[i][j]);
             else
-                fprintf(out, "%d\n", pixels[i*numCols+j]);
+                fprintf(out, "%d\n", pixels[i][j]);
         }
     }
     return 0;

@@ -15,14 +15,51 @@ __device__ float distance( int p1[], int p2[] )
 	return sqrtf(sqr);
 }
 
-__global__ void makeEdge(int * arr, int xmax, int ymax, int size)
+__global__ void drawCircle(int* pixels, int dimx, int dimy, int centerCol, int centerRow, int radius)
+{
+	int ix   = blockIdx.x*blockDim.x + threadIdx.x;
+    	int iy   = blockIdx.y*blockDim.y + threadIdx.y;
+    	int idx = iy*dimx + ix;
+    	
+    	int center[2] = {centerCol, centerRow};
+    	int pixel[2] = {ix,iy};
+    	
+    	float dist = distance(center, pixel);
+    	
+    	if(dist <= radius && ix < dimx)
+    	{
+    		pixels[idx] = 0;
+    	}
+    	
+}
+__global__ void drawEdge(int* pixels, int dimx, int dimy, int edgeWidth)
 {
         int x = threadIdx.x+(blockIdx.x*blockDim.x);
         int y = threadIdx.y+(blockIdx.y*blockDim.y);
 
-	if(x<xmax && y < ymax)
+	if(x<dimx && y < dimy)
 	{
-		if(x<size||y<size||(ymax-y)<=size||(xmax-x)<=size)
-			arr[y*xmax + x] = 0;
+		if(x<edgeWidth||y<edgeWidth||(dimy-y)<=edgeWidth||(dimx-x)<=edgeWidth)
+			pixels[y*dimx + x] = 0;
 	}
+}
+
+__global__ void drawLine(int *pixels, int steps, float xInc, float yInc, int p1row, int p1col, int dimx) {
+    int ix = blockIdx.x * blockDim.x + threadIdx.x;
+    int iy = blockIdx.y * blockDim.y + threadIdx.y;
+    int thread = ix * dimx + iy;
+    int x = -1, y = -1;
+    if (fmodf(xInc, 1.0) == .5) {
+        if (xInc < 0) xInc += .0000001;
+        else xInc -= .0000001;
+    }
+    if (fmodf(yInc, 1.0) == .5) {
+        if (yInc < 0) yInc += .0000001;
+        else yInc -= .0000001;
+    }
+    if (thread < steps) {
+        x = p1row + xInc * thread;
+        y = p1col + yInc * thread;
+    }
+    pixels[(int) (llrintf(x) * dimx + llrintf(y))] = 0;
 }

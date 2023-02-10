@@ -48,7 +48,6 @@ __global__ void drawLine(int *pixels, int steps, float xInc, float yInc, int p1r
     int ix = blockIdx.x * blockDim.x + threadIdx.x;
     int iy = blockIdx.y * blockDim.y + threadIdx.y;
     int thread = ix * dimx + iy;
-    int x = -1, y = -1;
     if (fmodf(xInc, 1.0) == .5) {
         if (xInc < 0) xInc += .0000001;
         else xInc -= .0000001;
@@ -58,8 +57,8 @@ __global__ void drawLine(int *pixels, int steps, float xInc, float yInc, int p1r
         else yInc -= .0000001;
     }
     if (thread < steps) {
-        x = p1row + xInc * thread;
-        y = p1col + yInc * thread;
+        int x = p1row + xInc * thread;
+        int y = p1col + yInc * thread;
+        pixels[x * dimx + y] = 0;
     }
-    pixels[(int) (llrintf(x) * dimx + llrintf(y))] = 0;
 }

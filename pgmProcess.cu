@@ -44,11 +44,22 @@ __global__ void drawEdge(int* pixels, int dimx, int dimy, int edgeWidth)
 	}
 }
 
-__global__ void drawLine(int *pixels, int *indices, int dimx, int numIndices) {
+__global__ void drawLine(int *pixels, int steps, float xInc, float yInc, int p1row, int p1col, int dimx) {
     int ix = blockIdx.x * blockDim.x + threadIdx.x;
     int iy = blockIdx.y * blockDim.y + threadIdx.y;
     int thread = ix * dimx + iy;
-    int index = -1;
-    if (thread < numIndices) index = indices[thread];
-    if (index != -1) pixels[index] = 0;
+    int x = -1, y = -1;
+    if (fmodf(xInc, 1.0) == .5) {
+        if (xInc < 0) xInc += .0000001;
+        else xInc -= .0000001;
+    }
+    if (fmodf(yInc, 1.0) == .5) {
+        if (yInc < 0) yInc += .0000001;
+        else yInc -= .0000001;
+    }
+    if (thread < steps) {
+        x = p1row + xInc * thread;
+        y = p1col + yInc * thread;
+    }
+    pixels[(int) (llrintf(x) * dimx + llrintf(y))] = 0;
 }

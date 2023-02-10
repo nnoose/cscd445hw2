@@ -24,9 +24,9 @@ __global__ void drawCircle(int* pixels, int dimx, int dimy, int centerCol, int c
     	int center[2] = {centerCol, centerRow};
     	int pixel[2] = {ix,iy};
     	
-    	float distance = distance(center, pixel);
+    	float dist = distance(center, pixel);
     	
-    	if(distance <= radius && ix < dimx)
+    	if(dist <= radius && ix < dimx)
     	{
     		pixels[idx] = 0;
     	}
@@ -37,10 +37,10 @@ __global__ void drawEdge(int* pixels, int dimx, int dimy, int edgeWidth)
         int x = threadIdx.x+(blockIdx.x*blockDim.x);
         int y = threadIdx.y+(blockIdx.y*blockDim.y);
 
-	if(x<xmax && y < ymax)
+	if(x<dimx && y < dimy)
 	{
-		if(x<size||y<size||(ymax-y)<=size||(xmax-x)<=size)
-			arr[y*xmax + x] = 0;
+		if(x<edgeWidth||y<edgeWidth||(dimy-y)<=edgeWidth||(dimx-x)<=edgeWidth)
+			pixels[y*dimx + x] = 0;
 	}
 }
 

@@ -44,7 +44,7 @@ __global__ void drawEdge(int* pixels, int dimx, int dimy, int edgeWidth)
 	}
 }
 
-__global__ void pgmDrawLineKernel(int *pixels, int *indices, int dimx, int numIndices) {
+__global__ void drawLine(int *pixels, int *indices, int dimx, int numIndices) {
     int ix = blockIdx.x * blockDim.x + threadIdx.x;
     int iy = blockIdx.y * blockDim.y + threadIdx.y;
     int thread = ix * dimx + iy;

@@ -15,7 +15,7 @@
 int ** pgmRead( char **header, int *numRows, int *numCols, FILE *in )
 {
     int i, j;
-    
+
     // read in header of the image first
     for( i = 0; i < rowsInHeader; i ++)
     {
@@ -56,38 +56,56 @@ int ** pgmRead( char **header, int *numRows, int *numCols, FILE *in )
 int pgmDrawCircle( int **pixels, int numRows, int numCols, int centerRow,
                   int centerCol, int radius, char **header )
 {
-	int x,y,max;
-	for(x = 0; x < numRows; x++)
-	{
-		for(y = 0; y < numCols; y++)
+	int center[] = {centerCol,centerRow};
+	for(int i = 0; i < numRows; i++)
+		for(int j = 0; j<numRows;j++)
 		{
-			int* pixel = {y,x};
-			int* center = {centerCol, centerRow};
-			int dist = (int) distance( center, pixel);
-			int place = (x*numRows)+y;
-			if(dist < radius){
-				pixels[place] = 0;
-			}
-			if(pixels[place] > max;){
-				max = pixels[place];
-			}
+			int point[] = {j,i};
+			double dist = distance(center,point);
+			if(dist<=radius)
+				pixels[i][j] = 0;
 		}
-	}
-	
 }
 
 //---------------------------------------------------------------------------
 int pgmDrawEdge( int **pixels, int numRows, int numCols, int edgeWidth, char **header )
 {
-
+	for(int i = 0; i < numRows; i++)
+		for(int j = 0; j < numCols; j++)
+		{
+			if(i<edgeWidth || numRows-i <= edgeWidth || j<edgeWidth || numCols - j <= edgeWidth)
+				pixels[i][j] = 0;
+		}
 }
 
 //---------------------------------------------------------------------------
 
-int pgmDrawLine( int **pixels, int numRows, int numCols, char **header,
-                int p1row, int p1col, int p2row, int p2col )
-{
-
+int pgmDrawLine( int ** pixels, int numRows, int numCols, char **header, int p1row, int p1col, int p2row, int p2col ) {
+    int dx = p2row - p1row, dy = p2col - p1col, steps;
+    double x = (double) p1row, y = (double) p1col;
+    if (abs(dx) > abs(dy)) steps = abs(dx) + 1;
+    else steps = abs(dy) + 1;
+    float xInc = (float) (abs(dx) + 1) / (float) steps;
+    float yInc = (float) (abs(dy) + 1) / (float) steps;
+    if (dx < 0) xInc *= -1;
+    if (dy < 0) yInc *= -1;
+    for (int i = 0; i < steps; i++) {
+        int xHalf = 0, yHalf = 0;
+        if (fmod(x, 1.0) == .5) {
+            x -= .5;
+            xHalf = 1;
+        }
+        if (fmod(y, 1.0) == .5) {
+            y -= .5;
+            yHalf = 1;
+        }
+        pixels[(int) round(x)][(int) round(y)] = 0;
+        if (xHalf) x += .5;
+        if (yHalf) y += .5;
+        x += xInc;
+        y += yInc;
+    }
+    return 0;
 }
 
 //----------------------------------------------------------------------------

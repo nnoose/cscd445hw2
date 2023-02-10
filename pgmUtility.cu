@@ -98,6 +98,7 @@ int pgmDrawEdge( int *pixels, int numRows, int numCols, int edgeWidth, char **he
 	return 0;
 }
 
+
 int pgmDrawCircle( int *pixels, int numRows, int numCols, int centerRow, int centerCol, int radius, char **header )
 {
 	clock_t start, end;
@@ -124,4 +125,30 @@ int pgmDrawCircle( int *pixels, int numRows, int numCols, int centerRow, int cen
 	return 0;
 }
 
+
+
+int pgmDrawLine( int *pixels, int numRows, int numCols, char **header, int p1row, int p1col, int p2row, int p2col ) {
+    int dx = p2row - p1row, dy = p2col - p1col, steps;
+    if (abs(dx) > abs(dy)) steps = abs(dx) + 1;
+    else steps = abs(dy) + 1;
+    float xInc = (float) (abs(dx) + 1) / (float) steps;
+    float yInc = (float) (abs(dy) + 1) / (float) steps;
+    if (dx < 0) xInc *= -1;
+    if (dy < 0) yInc *= -1;
+    int *d_pixels = 0, numBytes = numRows * numCols * sizeof(int);
+    cudaMalloc((void **) &d_pixels, numBytes);
+    if (d_pixels == 0) {
+        printf("Couldn't allocate pixels on device\n");
+        return -1;
+    }
+    cudaMemcpy(d_pixels, pixels, numBytes, cudaMemcpyHostToDevice);
+    dim3 grid, block;
+    block.x = numCols % 16;
+    block.y = numRows % 16;
+    grid.x = ceil((float) numRows / block.x);
+    grid.y = ceil((float) numCols / block.y);
+    drawLine<<<grid, block>>>(d_pixels, steps, xInc, yInc, p1row, p1col, numCols);
+    cudaMemcpy(pixels, d_pixels, numBytes, cudaMemcpyDeviceToHost);
+    return 0;
+}
 

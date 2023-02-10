@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "pgmUtility.h"
 
 void usage()
@@ -15,6 +16,7 @@ int main(int argc, char ** argv)
 {
 
 	//handle bad input cases
+	
 	if(argc!=5 && argc!= 7 && argc!= 8)
 	{
 		usage();
@@ -33,7 +35,7 @@ int main(int argc, char ** argv)
 	int nRows,nCols;
 	int p1y, p1x,p2y,p2x;
 	int edgeWidth, circleCenterRow, circleCenterCol, radius;
-
+	clock_t start,end;
 
 
 
@@ -77,8 +79,11 @@ int main(int argc, char ** argv)
 			circleCenterRow = atoi(argv[2]);
         	        circleCenterCol = atoi(argv[3]);
 	                radius = atoi(argv[4]);
-
+			start = clock();
 			pgmDrawCircle(pixels, nRows, nCols, circleCenterRow, circleCenterCol, radius, header);
+			end = clock();
+			double timeUsed = ((double) end-start)/CLOCKS_PER_SEC;
+			printf("Time of CPU Circle: %f\n",timeUsed);
 			break;
 		case 'e':
 			if(argc!=5)
@@ -89,7 +94,11 @@ int main(int argc, char ** argv)
 				return 1;
 			}
 			edgeWidth = atoi(argv[2]);
+			start = clock();
 			pgmDrawEdge(pixels, nRows, nCols, edgeWidth, header);
+			end = clock();
+			double timeUsed = ((double) end-start)/CLOCKS_PER_SEC;
+			printf("Time of CPU Edge: %f\n",timeUsed);
 			break;
 		case 'l':
 			if(argc!=8)
@@ -104,7 +113,12 @@ int main(int argc, char ** argv)
 
 			p2y = atoi(argv[4]);
 			p2x = atoi(argv[5]);
-			//pgmDrawLine(pixels,nRows,nCols,header,p1y,p1x,p2y,p2x);
+			start = clock();
+			pgmDrawLine(pixels,nRows,nCols,header,p1y,p1x,p2y,p2x);
+			end = clock();
+			double timeUsed = ((double) end-start)/CLOCKS_PER_SEC;
+			printf("Time of CPU Line: %f\n",timeUsed);
+			
 
 	}
 

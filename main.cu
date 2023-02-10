@@ -9,6 +9,13 @@ void usage()
 	printf("-l p1row p1col p2row p2col oldImageFile newImageFile\n");
 }
 
+void freeHeader(char ** header)
+{
+	for(int i = 0; i < rowsInHeader; i++)
+		free(header[i]);
+	free(header);
+
+}
 
 int main(int argc, char ** argv)
 {
@@ -60,6 +67,8 @@ int main(int argc, char ** argv)
 		case 'c':
 			if(argc!=7)
 			{
+				freeHeader(header);
+				free(pixels);
 				fclose(fin);
 				fclose(fout);
 				usage();
@@ -75,6 +84,8 @@ int main(int argc, char ** argv)
 		case 'e':
 			if(argc!=5)
 			{
+				freeHeader(header);
+				free(pixels);
 				fclose(fin);
 				fclose(fout);
 				usage();
@@ -86,6 +97,9 @@ int main(int argc, char ** argv)
 		case 'l':
 			if(argc!=8)
 			{
+
+				free(pixels);
+				freeHeader(header);
 				fclose(fin);
 				fclose(fout);
 				usage();
@@ -96,17 +110,19 @@ int main(int argc, char ** argv)
 
 			p2y = atoi(argv[4]);
 			p2x = atoi(argv[5]);
-			//pgmDrawLine(pixels,nRows,nCols,header,p1y,p1x,p2y,p2x);
+			pgmDrawLine(pixels,nRows,nCols,header,p1y,p1x,p2y,p2x);
 
 	}
 
 	pgmWrite((const char **)header, pixels, nRows, nCols, fout);
 
-	for(int i = 0; i < rowsInHeader; i++)
-		free(header[i]);
-	free(header);
 
+
+	free(pixels);
+	freeHeader(header);
 	fclose(fin);
 	fclose(fout);
 	return 0;
 }
+
+

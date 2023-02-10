@@ -91,6 +91,7 @@ int pgmDrawEdge( int *pixels, int numRows, int numCols, int edgeWidth, char **he
 	cudaMemcpy(pixels,arr, numRows*numCols*sizeof(int), cudaMemcpyDeviceToHost);
 	end = clock();
 	
+	cudaFree(arr);
 	double totalTime = ((double)end-start)/CLOCKS_PER_SEC;
     	printf("Total GPU time taken for Edge: %f\n", totalTime);
 
@@ -119,6 +120,7 @@ int pgmDrawCircle( int *pixels, int numRows, int numCols, int centerRow, int cen
     	cudaMemcpy(pixels, d_in, byteSize, cudaMemcpyDeviceToHost);
     	end = clock();
     	
+	cudaFree(d_in);
     	double totalTime = ((double)end-start)/CLOCKS_PER_SEC;
     	printf("Total GPU time taken for Circle: %f\n", totalTime);
     
@@ -149,6 +151,9 @@ int pgmDrawLine( int *pixels, int numRows, int numCols, char **header, int p1row
     grid.y = ceil((float) numCols / block.y);
     drawLine<<<grid, block>>>(d_pixels, steps, xInc, yInc, p1row, p1col, numCols);
     cudaMemcpy(pixels, d_pixels, numBytes, cudaMemcpyDeviceToHost);
+
+
+    cudaFree(d_pixels);
     return 0;
 }
 

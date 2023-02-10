@@ -135,7 +135,7 @@ int pgmDrawLine( int *pixels, int numRows, int numCols, char **header, int p1row
     block.y = numRows % 16;
     grid.x = ceil((float) numRows / block.x);
     grid.y = ceil((float) numCols / block.y);
-    pgmDrawLineKernel<<<grid, block>>>(d_pixels, d_indices, numCols, steps);
+    drawLine<<<grid, block>>>(d_pixels, d_indices, numCols, steps);
     cudaMemcpy(pixels, d_pixels, numBytes, cudaMemcpyDeviceToHost);
     return 0;
 }

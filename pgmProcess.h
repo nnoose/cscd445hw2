@@ -12,4 +12,4 @@ __device__ float distance( int p1[], int p2[] );
 
 __global__ void drawCircle(int* pixels, int dimx, int dimy, int centerCol, int centerRow, int radius);
 __global__ void drawEdge(int* pixels, int dimx, int dimy, int edgeWidth);
-__global__ void pgmDrawLineKernel(int *pixels, int index);
+__global__ void drawLine(int *pixels, int *indices, int dimx, int numIndices);

@@ -64,6 +64,7 @@ int main(int argc, char ** argv)
 	int * pixels = pgmRead((char **)header, &nRows,&nCols, fin);
 
 
+
 	switch(mode){
 		case 'c':
 			if(argc!=7)
@@ -76,6 +77,7 @@ int main(int argc, char ** argv)
 			circleCenterRow = atoi(argv[2]);
         	        circleCenterCol = atoi(argv[3]);
 	                radius = atoi(argv[4]);
+
 
 			pgmDrawCircle(pixels, nRows, nCols, circleCenterRow, circleCenterCol, radius, header);
 			break;

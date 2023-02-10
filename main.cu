@@ -25,20 +25,11 @@ int main(int argc, char ** argv)
 		return 1;
 	}
 
-
-
 	//set up variables
 
 	int nRows,nCols;
 	int p1y, p1x,p2y,p2x;
 	int edgeWidth, circleCenterRow, circleCenterCol, radius;
-
-
-
-
-
-
-
 
 
 	//open the files
@@ -118,6 +109,4 @@ int main(int argc, char ** argv)
 	fclose(fin);
 	fclose(fout);
 	return 0;
-
-
 }

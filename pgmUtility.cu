@@ -71,8 +71,8 @@ int pgmDrawEdge( int *pixels, int numRows, int numCols, int edgeWidth, char **he
 
 	//init variables. Threads x/y can be defined in header
 	clock_t start, end;
-	int threadsX = 32;
-	int threadsY = 32;
+	int threadsX = blockSize;
+	int threadsY = blockSize;
 	int blocksX = ceil(numCols/(float)threadsX);
 	int blocksY = ceil(numRows/(float)threadsY);
 	dim3 grid(blocksX,blocksY,1);
@@ -103,8 +103,8 @@ int pgmDrawEdge( int *pixels, int numRows, int numCols, int edgeWidth, char **he
 int pgmDrawCircle( int *pixels, int numRows, int numCols, int centerRow, int centerCol, int radius, char **header )
 {
 	clock_t start, end;
-	int threadsX = 32;
-	int threadsY = 32;
+	int threadsX = blockSize;
+	int threadsY = blockSize;
 	int blocksX = ceil(numCols/(float)threadsX);
 	int blocksY = ceil(numRows/(float)threadsY);
 	dim3 grid(blocksX,blocksY,1);
@@ -130,6 +130,7 @@ int pgmDrawCircle( int *pixels, int numRows, int numCols, int centerRow, int cen
 
 
 int pgmDrawLine( int *pixels, int numRows, int numCols, char **header, int p1row, int p1col, int p2row, int p2col ) {
+    clock_t start, end;
     int dx = p2row - p1row, dy = p2col - p1col, steps;
     if (abs(dx) > abs(dy)) steps = abs(dx) + 1;
     else steps = abs(dy) + 1;
@@ -143,14 +144,24 @@ int pgmDrawLine( int *pixels, int numRows, int numCols, char **header, int p1row
         printf("Couldn't allocate pixels on device\n");
         return -1;
     }
-    cudaMemcpy(d_pixels, pixels, numBytes, cudaMemcpyHostToDevice);
+
+
     dim3 grid, block;
-    block.x = numCols % 16;
-    block.y = numRows % 16;
+    block.x = blockSize;
+    block.y = blockSize;
+    block.z = 1;
     grid.x = ceil((float) numRows / block.x);
     grid.y = ceil((float) numCols / block.y);
+    grid.z = 1;
+
+    start = clock();
+    cudaMemcpy(d_pixels, pixels, numBytes, cudaMemcpyHostToDevice);
     drawLine<<<grid, block>>>(d_pixels, steps, xInc, yInc, p1row, p1col, numCols);
     cudaMemcpy(pixels, d_pixels, numBytes, cudaMemcpyDeviceToHost);
+    end = clock();
+
+    double totalTime = ((double)end-start)/CLOCKS_PER_SEC;
+    printf("Total GPU time taken for Line: %f\n", totalTime);
 
 
     cudaFree(d_pixels);

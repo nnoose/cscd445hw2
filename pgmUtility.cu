@@ -92,19 +92,6 @@ int pgmDrawEdge( int *pixels, int numRows, int numCols, int edgeWidth, char **he
 }
 
 int pgmDrawLine( int *pixels, int numRows, int numCols, char **header, int p1row, int p1col, int p2row, int p2col ) {
-    int *d_pixels = 0, numBytes = numRows * numCols * sizeof(int);
-    cudaMalloc((void **) &d_pixels, numBytes);
-    if (d_pixels == 0) {
-        printf("Couldn't allocate memory\n");
-        return -1;
-    }
-    cudaMemcpy(d_pixels, pixels, numBytes, cudaMemcpyHostToDevice);
-    dim3 grid, block;
-    block.x = numCols;
-    block.y = numRows;
-    grid.x = ceil((float) numRows / block.x);
-    grid.y = ceil((float) numCols / block.y);
-
     int dx = p2row - p1row, dy = p2col - p1col, steps;
     double x = (double) p1row, y = (double) p1col;
     if (abs(dx) > abs(dy)) steps = abs(dx) + 1;
@@ -113,6 +100,7 @@ int pgmDrawLine( int *pixels, int numRows, int numCols, char **header, int p1row
     float yInc = (float) (abs(dy) + 1) / (float) steps;
     if (dx < 0) xInc *= -1;
     if (dy < 0) yInc *= -1;
+    int indices[steps];
     for (int i = 0; i < steps; i++) {
         int xHalf = 0, yHalf = 0;
         if (fmod(x, 1.0) == .5) {
@@ -123,12 +111,31 @@ int pgmDrawLine( int *pixels, int numRows, int numCols, char **header, int p1row
             y -= .5;
             yHalf = 1;
         }
-        pgmDrawLineKernel<<<grid, block>>>(d_pixels, (int) (round(x) * numCols + round(y)));
+        indices[i] = (int) (round(x) * numCols + round(y));
         if (xHalf) x += .5;
         if (yHalf) y += .5;
         x += xInc;
         y += yInc;
     }
+    int *d_pixels = 0, *d_indices = 0, numBytes = numRows * numCols * sizeof(int);
+    cudaMalloc((void **) &d_pixels, numBytes);
+    if (d_pixels == 0) {
+        printf("Couldn't allocate pixels on device\n");
+        return -1;
+    }
+    cudaMemcpy(d_pixels, pixels, numBytes, cudaMemcpyHostToDevice);
+    cudaMalloc((void **) &d_indices, sizeof(indices));
+    if (d_indices == 0) {
+        printf("Couldn't allocate indices on device\n");
+        return -1;
+    }
+    cudaMemcpy(d_indices, indices, sizeof(indices), cudaMemcpyHostToDevice);
+    dim3 grid, block;
+    block.x = numCols % 16;
+    block.y = numRows % 16;
+    grid.x = ceil((float) numRows / block.x);
+    grid.y = ceil((float) numCols / block.y);
+    pgmDrawLineKernel<<<grid, block>>>(d_pixels, d_indices, numCols, steps);
     cudaMemcpy(pixels, d_pixels, numBytes, cudaMemcpyDeviceToHost);
     return 0;
 }

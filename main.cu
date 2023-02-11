@@ -1,5 +1,7 @@
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "pgmUtility.h"
 
 void usage()
@@ -16,12 +18,23 @@ void freeHeader(char ** header)
 	free(header);
 
 }
+int isANumber(char * str)
+{
+	int len = strlen(str);
+	for(int i = 0; i < len; i++)
+	{
+		if(!isdigit(str[i]))
+			return 0;
+	}
+	return 1;
+}
+
 
 int main(int argc, char ** argv)
 {
 
 	//handle bad input cases
-	if(argc!=5 && argc!= 7 && argc!= 8)
+	if(argc!=5 && argc!= 7 && argc!= 8 && argc != 9)
 	{
 		usage();
 		return 1;
@@ -37,7 +50,7 @@ int main(int argc, char ** argv)
 	int nRows,nCols;
 	int p1y, p1x,p2y,p2x;
 	int edgeWidth, circleCenterRow, circleCenterCol, radius;
-
+	edgeWidth = 0;
 
 	//open the files
 	FILE * fin = fopen(argv[argc-2],"r");
@@ -46,7 +59,11 @@ int main(int argc, char ** argv)
 
 	if(fin==NULL|| fout ==NULL)
 	{
-		fprintf(stderr, "couldn't open file(s)\n");
+		if(fin != NULL)
+			fclose(fin);
+		if(fout != NULL)
+			fclose(fout);
+		usage();
 		return 1;
 	}
 
@@ -65,7 +82,7 @@ int main(int argc, char ** argv)
 
 	switch(mode){
 		case 'c':
-			if(argc!=7)
+			if(argc!=7 && (argc!= 8 || strlen(argv[1])!=3 || argv[1][2]!='e') && (argc != 9 || strlen(argv[2])!=2 || argv[2][1] != 'e'))
 			{
 				freeHeader(header);
 				free(pixels);
@@ -74,15 +91,68 @@ int main(int argc, char ** argv)
 				usage();
 				return 1;
 			}
-			circleCenterRow = atoi(argv[2]);
-        	        circleCenterCol = atoi(argv[3]);
-	                radius = atoi(argv[4]);
+			if(argc == 7)
+			{
+				circleCenterRow = atoi(argv[2]);
+       		 	        circleCenterCol = atoi(argv[3]);
+		                radius = atoi(argv[4]);
 
+				if(!isANumber(argv[2]) || !isANumber(argv[3]) || !isANumber(argv[4]))
+				{
+					freeHeader(header);
+					free(pixels);
+					fclose(fin);
+					fclose(fout);
+					usage();
+					return 1;
+				}
+
+			}
+			else if(argc == 8)
+			{
+
+				circleCenterRow = atoi(argv[2]);
+       		 	        circleCenterCol = atoi(argv[3]);
+		                radius = atoi(argv[4]);
+				edgeWidth  = atoi(argv[5]);
+
+				if(!isANumber(argv[2]) || !isANumber(argv[3]) || !isANumber(argv[4]) || !isANumber(argv[5]))
+				{
+					freeHeader(header);
+					free(pixels);
+					fclose(fin);
+					fclose(fout);
+					usage();
+					return 1;
+				}
+			}
+			else if(argc == 9)
+			{
+				circleCenterRow = atoi(argv[3]);
+       		 	        circleCenterCol = atoi(argv[4]);
+		                radius = atoi(argv[5]);
+				edgeWidth  = atoi(argv[6]);
+
+				if(!isANumber(argv[3]) || !isANumber(argv[4]) || !isANumber(argv[5]) || !isANumber(argv[6]))
+				{
+					freeHeader(header);
+					free(pixels);
+					fclose(fin);
+					fclose(fout);
+					usage();
+					return 1;
+				}
+			}
 
 			pgmDrawCircle(pixels, nRows, nCols, circleCenterRow, circleCenterCol, radius, header);
+
+			if(edgeWidth!= 0)
+				pgmDrawEdge(pixels, nRows, nCols, edgeWidth, header);
+
+
 			break;
 		case 'e':
-			if(argc!=5)
+			if(argc!=5 || !isANumber(argv[2]))
 			{
 				freeHeader(header);
 				free(pixels);
@@ -91,11 +161,13 @@ int main(int argc, char ** argv)
 				usage();
 				return 1;
 			}
+
+
 			edgeWidth = atoi(argv[2]);
 			pgmDrawEdge(pixels, nRows, nCols, edgeWidth, header);
 			break;
 		case 'l':
-			if(argc!=8)
+			if(argc!=8 || !isANumber(argv[2]) || !isANumber(argv[3]) || !isANumber(argv[4]) || !isANumber(argv[5]) )
 			{
 
 				free(pixels);
